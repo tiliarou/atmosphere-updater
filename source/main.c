@@ -12,6 +12,9 @@
 
 //#define DEBUG                                              // enable for nxlink debug
 
+AppTextures appTextures;
+AppFonts appFonts;
+
 int appInit()
 {
     Result rc;
@@ -30,7 +33,7 @@ int appInit()
     if (R_FAILED(rc = splInitialize()))                     // for atmosphere version
         printf("splInitialize() failed: 0x%x.\n\n", rc);
 
-    if (R_FAILED(rc = plInitialize()))                      // for shared fonts.
+    if (R_FAILED(rc = plInitialize(PlServiceType_User)))    // for shared fonts.
         printf("plInitialize() failed: 0x%x.\n\n", rc);
 
     if (R_FAILED(rc = romfsInit()))                         // load textures from app.
@@ -109,19 +112,14 @@ int main(int argc, char **argv)
 
             switch (cursor)
             {
-            case UP_AMS:
-                if (yesNoBox(cursor, 390, 250, "Update Atmosphere?") == YES)
-                    update_ams_hekate(AMS_URL, AMS_OUTPUT, cursor);
-                break;
-
-            case UP_AMS_NOINI:
-                if (yesNoBox(cursor, 390, 250, "Update Atmosphere\n(ignoring .ini files)?") == YES)
-                    update_ams_hekate(AMS_URL, AMS_OUTPUT, cursor);
-                break;
-
             case UP_HEKATE:
                 if (yesNoBox(cursor, 390, 250, "Update Hekate?") == YES)
-                    update_ams_hekate(HEKATE_URL, HEKATE_OUTPUT, cursor);
+                    update_hekate();
+                break;
+
+            case UP_PATCHES:
+                if (yesNoBox(cursor, 360, 250, "Update Atmosphere + patches?") == YES)
+                    update_sigpatches(cursor);
                 break;
 
             case UP_APP:

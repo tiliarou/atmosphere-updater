@@ -1,41 +1,32 @@
-# THIS PROJECT IS ARCHIVED.
+# Atmosphere-Updater
 
-I am no longer updating any of my switch homebrew apps. This also means that there will be no more public releases made by me.
-
-Thank you to everyone that was kind to me along the way.
-
-----
-
-## Atmosphere-Updater
-
-Update Atmosphere cfw from within your switch!
+Update Atmosphere CFW and sigpatches from within your switch!
 
 ![Img](images/example.jpg)
 
 ----
 
-# Install
+## Install
 
-Download the the latest release from [here](https://github.com/ITotalJustice/atmosphere-updater/releases).
+Download the latest release from [here](https://github.com/JackInTheShop/AIO-atmosphere-updater/releases).
 
-Move the downloaded .nro onto you nintendo switch sd card inside the folder **/switch/atmosphere-updater**.
+Move the downloaded .nro onto you Nintendo Switch SD Card inside the folder **/switch/AIO-atmosphere-updater/**.
 
 That's it!
 
 ----
 
-# Usage
+## Usage
 
-__**The app currently has 5 main options.**__
+__**The app currently has 4 main options.**__
+w
+**Update Atmosphere + sigpatches:**
 
-**Full Atmosphere Update:**
+* Downloads the latest Atmosphere release and installs everything from that release. 
+* Downloads the latest sigpatches.
+* If `/config/BCT.ini` exists in Atmosphere release, it will prompt user asking if they want to overwrite said file as shown here:
 
-* Downloads the latest Atmosphere release and installs everything from that release.
-
-**Update Atmosphere, not overwriting .ini files:**
-
-* Downloads the latest Atmosphere release and installs everything from that release ignoring .ini files.
-* This option will still install any missing .ini files, ensuring that the update will function correctly.
+![Img](images/example.jpg)
 
 **Update Hekate:**
 
@@ -47,23 +38,23 @@ __**The app currently has 5 main options.**__
 
 **Update App:**
 
-* Downloads the latest version of this app straight from github!
+* Downloads the latest version of this app!
 * Deletes the previous old version.
 
 **Reboot (reboot to payload):**
 
 * Reboots the switch, loading the payload from **/atmosphere/reboot_payload.bin**.
 * This is recommended after install Atmosphere.
-* Updating Atmosphere / Hekate automatically includes the needed **reboot_payload.bin**.
+* Updating Atmosphere automatically includes the needed **reboot_payload.bin**.
 
 ----
 
-# Build
+## Build
 
-Install the Devkitpro tool chain from [here](https://devkitpro.org/wiki/Getting_Started).
+Install the devkitpro tool chain from [here](https://devkitpro.org/wiki/Getting_Started).
 
  Using pacman (installed with devkitpro) install the following libraries:
-* switch-curl
+* [switch-ex-curl](https://www.github.com/eXhumer/switch-ex-curl/)
 * switch-freetype
 * switch-sdl2
 * switch-sdl2_gfx
@@ -75,7 +66,11 @@ If you have any problems building, feel free to open an issue including any buil
  
 ----
 
-# Special Thanks!
+## Special Thanks!
+
+[ITotalJustice](ITotalJustice) for originally developing the app.
+
+[eXhumer](eXhumer) for recently updating the app with libnx 3.2.0 support, notably adding sigpatches support and the BCT.ini prompt. 
 
 [toph](https://github.com/sudot0ph) for the design of the app icon, as well as the most icons used within the app!
 
@@ -84,11 +79,3 @@ If you have any problems building, feel free to open an issue including any buil
 [bandithedoge](https://github.com/bandithedoge) for the background!
 
 [KrankRival](https://github.com/KranKRival) for the initial sys / ams version pr (and for motivating me to work on touch controls)!
-
-----
-
-# Patreon
-
-Feel free to support me on patreon, I would really appreciate it!
-
-<a href="https://www.patreon.com/totaljustice"><img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" alt="Patreon donate button" /> </a>

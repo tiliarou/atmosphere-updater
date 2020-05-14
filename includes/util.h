@@ -2,11 +2,12 @@
 #define _UTIL_H_
 
 #define ROOT                    "/"
-#define APP_PATH                "/switch/atmosphere-updater/"
-#define AMS_OUTPUT              "/switch/atmosphere-updater/ams.zip"
-#define HEKATE_OUTPUT           "/switch/atmosphere-updater/hekate.zip"
-#define APP_OUTPUT              "/switch/atmosphere-updater/atmosphere-updater.nro"
-#define OLD_APP_PATH            "/switch/atmosphere-updater.nro"
+#define APP_PATH                "/switch/AIO-atmosphere-updater/"
+#define AMS_OUTPUT              "/switch/AIO-atmosphere-updater/ams.zip"
+#define HEKATE_OUTPUT           "/switch/AIO-atmosphere-updater/hekate.zip"
+#define PATCH_OUTPUT            "/switch/AIO-atmosphere-updater/sigpatches.zip"
+#define APP_OUTPUT              "/switch/AIO-atmosphere-updater/AIO-atmosphere-updater.nro"
+#define OLD_APP_PATH            "/switch/AIO-atmosphere-updater.nro"
 
 #define YES                     10
 #define NO                      20
@@ -22,7 +23,8 @@ char *getLatestAtmosphereVersion();                                     // retur
 
 void copyFile(char *src, char *dest);                                   // basic copy file. Use malloc if you need dynamic mem
 int parseSearch(char *phare_string, char *filter, char* new_string);    // hacky way to parse a file for a string
-int update_ams_hekate(char *url, char *output, int mode);               // update either ams or hekate
+void update_hekate();                                                   // update hekate
+void update_sigpatches(int cursor);                                     // update sigpatches
 void update_app();                                                      // update the app
 
 #endif

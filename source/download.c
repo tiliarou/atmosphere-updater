@@ -7,7 +7,7 @@
 #include "menu.h"
 #include "util.h"           // for ON / OFF defines.
 
-#define API_AGENT           "ITotalJustice"
+#define API_AGENT           "JITS"
 #define DOWNLOAD_BAR_MAX    500
 
 struct MemoryStruct
@@ -26,15 +26,15 @@ static size_t write_memory_callback(void *contents, size_t size, size_t nmemb, v
 
   if (ptr == NULL)
   {
-      errorBox(350, 250, "Failed to realloc mem");
+      errorBox(350, 250, "Out of Memory! Don't use applet mode!");
       return 0;
   }
- 
+
   mem->memory = ptr;
   memcpy(&(mem->memory[mem->size]), contents, realsize);
   mem->size += realsize;
   mem->memory[mem->size] = 0;
- 
+
   return realsize;
 }
 
@@ -51,7 +51,7 @@ int download_progress(void *p, double dltotal, double dlnow, double ultotal, dou
     if (counter == 0 || counter == 2 || counter == 4 || counter == 6 || counter == 8)
     {
         printOptionList(0);
-        popUpBox(fntSmall, 350, 250, SDL_GetColour(white), "Downloading...");
+        popUpBox(appFonts.fntSmall, 350, 250, SDL_GetColour(white), "Downloading...");
         // bar max size
         drawShape(SDL_GetColour(white), 380, 380, DOWNLOAD_BAR_MAX, 30);
         // progress bar being filled
