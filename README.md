@@ -31,10 +31,6 @@ w
 **Update Hekate:**
 
 * Installs the latest release of Hekate.
-* Option to install latest Atmosphere as well, when selecting update Hekate.
-* If option to update Hekate + Atmosphere is selected, the new fusee-primary.bin is copied to **/bootloader/payloads/fusee-primary.bin**.
-* Replaces **/atmosphere/reboot_payload.bin** with the new Hekate payload.
-* Copies new Hekate payload to **/bootloader/update.bin**.
 
 **Update App:**
 
