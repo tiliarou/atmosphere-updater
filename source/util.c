@@ -167,6 +167,12 @@ void update_hekate()
             {
                 unzip(HEKATE_OUTPUT, UP_HEKATE);
                 remove(HEKATE_OUTPUT);
+                int res = yesNoBox(UP_HEKATE, 325, 250, "Copy reboot payload to payloads?");
+                if (res == YES)
+                {
+                  copyFile("/atmosphere/reboot_payload.bin", "/bootloader/payloads/reboot_payload.bin");
+                  errorBox(330, 250, "Added reboot_payload to hekate");
+                }
             }
         }
     }

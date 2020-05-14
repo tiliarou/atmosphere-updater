@@ -51,7 +51,7 @@ int unzip(const char *output, int cursor)
             if (dir) closedir(dir);
             else
             {
-                drawText(appFonts.fntSmall, 350, 350, SDL_GetColour(white), filename_inzip);
+                drawText(appFonts.fntSmall, 325, 350, SDL_GetColour(white), filename_inzip);
                 mkdir(filename_inzip, 0777);
             }
         }

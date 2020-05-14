@@ -31,6 +31,7 @@ w
 **Update Hekate:**
 
 * Installs the latest release of Hekate.
+* Offers to copy **/atmosphere/reboot_payload.bin** to **/bootloader/payloads/reboot_payload.bin** in order to avoid booting to hekate after install with no payloads. If you ran **Update Atmosphere + sigpatches:** first, **/atmosphere/reboot_payload.bin** is the latest **fusee-primary.bin**.
 
 **Update App:**
 
