@@ -12,6 +12,9 @@
 
 //#define DEBUG                                              // enable for nxlink debug
 
+AppTextures appTextures;
+AppFonts appFonts;
+
 int appInit()
 {
     Result rc;
@@ -21,7 +24,7 @@ int appInit()
 
     #ifdef DEBUG
     if (R_FAILED(rc = nxlinkStdio()))                       // redirect all printout to console window.
-        printf("nxlinkStdio() failed: 0x%x.\n\n", rc)
+        printf("nxlinkStdio() failed: 0x%x.\n\n", rc);
     #endif
 
     if (R_FAILED(rc = setsysInitialize()))                  // for system version
@@ -30,7 +33,7 @@ int appInit()
     if (R_FAILED(rc = splInitialize()))                     // for atmosphere version
         printf("splInitialize() failed: 0x%x.\n\n", rc);
 
-    if (R_FAILED(rc = plInitialize()))                      // for shared fonts.
+    if (R_FAILED(rc = plInitialize(PlServiceType_User)))    // for shared fonts.
         printf("plInitialize() failed: 0x%x.\n\n", rc);
 
     if (R_FAILED(rc = romfsInit()))                         // load textures from app.
@@ -62,6 +65,9 @@ int main(int argc, char **argv)
     // write sys / ams version to char*.
     writeSysVersion();
     writeAmsVersion();
+    refreshScreen(/*loaded=*/0);
+    updateRenderer();
+    writeLatestAtmosphereVersion();
 
     // set the cursor position to 0.
     short cursor = 0;
@@ -70,7 +76,7 @@ int main(int argc, char **argv)
     int touch_lock = OFF;
     u32 tch = 0;
     touchPosition touch;
-    
+
     // muh loooooop
     while(appletMainLoop())
     {
@@ -106,19 +112,14 @@ int main(int argc, char **argv)
 
             switch (cursor)
             {
-            case UP_AMS:
-                if (yesNoBox(cursor, 390, 250, "Update Atmosphere?") == YES)
-                    update_ams_hekate(AMS_URL, AMS_OUTPUT, cursor);
-                break;
-
-            case UP_AMS_NOINI:
-                if (yesNoBox(cursor, 390, 250, "Update Atmosphere\n(ignoring .ini files)?") == YES)
-                    update_ams_hekate(AMS_URL, AMS_OUTPUT, cursor);
-                break;
-
             case UP_HEKATE:
                 if (yesNoBox(cursor, 390, 250, "Update Hekate?") == YES)
-                    update_ams_hekate(HEKATE_URL, HEKATE_OUTPUT, cursor);
+                    update_hekate();
+                break;
+
+            case UP_PATCHES:
+                if (yesNoBox(cursor, 360, 250, "Update Atmosphere + patches?") == YES)
+                    update_sigpatches(cursor);
                 break;
 
             case UP_APP:

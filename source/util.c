@@ -8,11 +8,14 @@
 #include "download.h"
 #include "reboot_payload.h"
 
-#define TEMP_FILE               "/switch/atmosphere-updater/temp"
-#define FILTER_STRING           "browser_download_url\":\""
+#define TEMP_FILE                 "/switch/AIO-atmosphere-updater/temp"
+#define FILTER_STRING             "browser_download_url\":\""
+#define VERSION_FILTER_STRING     "tag_name\":\""
 
 char g_sysVersion[50];
 char g_amsVersion[50];
+char g_amsVersionWithoutHash[15];
+char g_latestAtmosphereVersion[50];
 
 
 char *getSysVersion()
@@ -25,12 +28,17 @@ char *getAmsVersion()
     return g_amsVersion;
 }
 
+char *getLatestAtmosphereVersion()
+{
+    return g_latestAtmosphereVersion;
+}
+
 void writeSysVersion()
 {
 	Result ret = 0;
 	SetSysFirmwareVersion ver;
 
-	if (R_FAILED(ret = setsysGetFirmwareVersion(&ver))) 
+	if (R_FAILED(ret = setsysGetFirmwareVersion(&ver)))
     {
 		printf("GetFirmwareVersion() failed: 0x%x.\n\n", ret);
 		return;
@@ -49,13 +57,13 @@ void writeAmsVersion()
     SplConfigItem SplConfigItem_ExosphereVersion = (SplConfigItem)65000;
     SplConfigItem SplConfigItem_ExosphereVerHash = (SplConfigItem)65003;
 
-	if (R_FAILED(ret = splGetConfig(SplConfigItem_ExosphereVersion, &ver))) 
+	if (R_FAILED(ret = splGetConfig(SplConfigItem_ExosphereVersion, &ver)))
     {
 		printf("SplConfigItem_ExosphereVersion() failed: 0x%x.\n\n", ret);
 		return;
 	}
 
-    if (R_FAILED(ret = splGetConfig(SplConfigItem_ExosphereVerHash, &fullHash))) 
+    if (R_FAILED(ret = splGetConfig(SplConfigItem_ExosphereVerHash, &fullHash)))
     {
 		printf("SplConfigItem_ExosphereVerHash() failed: 0x%x.\n\n", ret);
 		return;
@@ -67,10 +75,30 @@ void writeAmsVersion()
 
     // write ams version number + hash.
     char amsVersionNum[25];
-	snprintf(amsVersionNum, sizeof(amsVersionNum), "%lu.%lu.%lu (%s)", (ver >> 32) & 0xFF,  (ver >> 24) & 0xFF, (ver >> 16) & 0xFF, shortHash);
+    snprintf(g_amsVersionWithoutHash, sizeof(g_amsVersionWithoutHash), "%lu.%lu.%lu", (ver >> 32) & 0xFF,  (ver >> 24) & 0xFF, (ver >> 16) & 0xFF);
+	snprintf(amsVersionNum, sizeof(amsVersionNum), "%s (%s)", g_amsVersionWithoutHash, shortHash);
 
     // write string + ams version to global variable.
     snprintf(g_amsVersion, sizeof(g_amsVersion), "Atmosphere Ver: %s", amsVersionNum);
+}
+
+void writeLatestAtmosphereVersion()
+{
+  // Download the github API file and then parse out the version number.
+  char *updateString = "- Up to date";
+  if (!downloadFile(AMS_URL, TEMP_FILE, ON))
+  {
+    char latestVersionNumber[10];
+    if (!parseSearch(TEMP_FILE, VERSION_FILTER_STRING, latestVersionNumber)) {
+      if (strcmp(g_amsVersionWithoutHash, latestVersionNumber) != 0)
+      {
+        char buffer[50];
+        snprintf(buffer, sizeof(buffer), "- Update available: %s", latestVersionNumber);
+        updateString = buffer;
+      }
+    }
+  }
+  snprintf(g_latestAtmosphereVersion, sizeof(g_latestAtmosphereVersion), updateString);
 }
 
 void copyFile(char *src, char *dest)
@@ -95,7 +123,7 @@ void copyFile(char *src, char *dest)
 int parseSearch(char *parse_string, char *filter, char* new_string)
 {
     FILE *fp = fopen(parse_string, "r");
-    
+
     if (fp)
     {
         char c;
@@ -128,53 +156,35 @@ int parseSearch(char *parse_string, char *filter, char* new_string)
     return 1;
 }
 
-int update_ams_hekate(char *url, char *output, int mode)
+void update_hekate()
 {
-    if (mode == UP_HEKATE)
-    {
-        // ask if user wants to install atmosphere as well.
-        int res = yesNoBox(mode, 390, 250, "Update AMS and hekate?");
-
-        if (res == YES)
-        {
-            // ask if user wants to overwite the atmosphere ini files.
-            res = yesNoBox(mode, 355, 250, "Overwite Atmosphere ini files?");
-
-            if (res == YES)
-            {
-                if (!update_ams_hekate(AMS_URL, AMS_OUTPUT, UP_AMS))
-                    rename("/atmosphere/reboot_payload.bin", "/bootloader/payloads/fusee-primary.bin");
-            }
-
-            else
-            {
-                if (!update_ams_hekate(AMS_URL, AMS_OUTPUT, UP_AMS_NOINI))
-                    rename("/atmosphere/reboot_payload.bin", "/bootloader/payloads/fusee-primary.bin");
-            }
-        }
-    }
-
-    if (!downloadFile(url, TEMP_FILE, ON))
+    if (!downloadFile(HEKATE_URL, TEMP_FILE, ON))
     {
         char new_url[MAX_STRLEN];
         if (!parseSearch(TEMP_FILE, FILTER_STRING, new_url))
         {
-            if (!downloadFile(new_url, output, OFF))
+            if (!downloadFile(new_url, HEKATE_OUTPUT, OFF))
             {
-                unzip(output, mode);
-
-                // check if an update.bin is present, remove if so.
-                if (mode == UP_HEKATE)
+                unzip(HEKATE_OUTPUT, UP_HEKATE);
+                remove(HEKATE_OUTPUT);
+                int res = yesNoBox(UP_HEKATE, 325, 250, "Copy reboot payload to payloads?");
+                if (res == YES)
                 {
-                    copyFile("/atmosphere/reboot_payload.bin", "/bootloader/update.bin");
+                  copyFile("/atmosphere/reboot_payload.bin", "/bootloader/payloads/reboot_payload.bin");
+                  errorBox(330, 250, "Added reboot_payload to hekate");
                 }
-                return 0;
             }
-            return 1;
         }
-        return 1;
     }
-    return 1;
+}
+
+void update_sigpatches(int cursor)
+{
+    if (!downloadFile(PATCH_URL, PATCH_OUTPUT, OFF))
+    {
+        unzip(PATCH_OUTPUT, cursor);
+        remove(PATCH_OUTPUT);
+    }
 }
 
 void update_app()
@@ -188,7 +198,7 @@ void update_app()
         remove(OLD_APP_PATH);
         // rename the downloaded temp_file with the correct nro name.
         rename(TEMP_FILE, APP_OUTPUT);
-        // using errorBox as a message window on this occasion. 
+        // using errorBox as a message window on this occasion.
         errorBox(400, 250, "      Update complete!\nRestart app to take effect");
     }
 }
